@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assessment Contract</title>
+  <style>
+      body {
+          font-family: Arial, sans-serif;
+          background-color: #f3dddd;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+      }
+
+      .container {
+          background-color: #a8d1f8;
+          border: 1px solid #ddd;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+          width: 400px;
+      }
+
+      h1 {
+          text-align: center;
+      }
+
+      h2 {
+          margin-top: 20px;
+      }
+
+      input, button {
+          display: block;
+          margin-top: 10px;
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+      }
+
+      button {
+          background-color: #007bff;
+          color: #fff;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+          background-color: #0056b3;
+      }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.3.6/dist/web3.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- ... (rest of your HTML content) ... -->
+        <h1>My Unique Bank Web</h1>
+        <div>
+            <h2>Contract Information</h2>
+            <p>Contract Address: <span id="contractAddress"></span></p>
+            <p>Contract Balance: <span id="contractBalance"></span> eth</p>
+        </div>
+        <div>
+            <h2>Wallet Address</h2>
+            <p>Your Wallet Address: <span id="userAddress"></span></p>
+        </div>
+        <div>
+            <h2>Deposit Funds</h2>
+            <input type="number" id="depositAmount" placeholder="Amount in eth">
+            <button onclick="deposit()">Deposit</button>
+        </div>
+        <div>
+            <h2>Withdraw Funds</h2>
+            <input type="number" id="withdrawAmount" placeholder="Amount in eth">
+            <button onclick="withdraw()">Withdraw</button>
+        <div>
+            <h2>View Item</h2>
+            <input type="text" id="itemName" placeholder="Item Name">
+            <button onclick="viewItem()">View Item</button>
+            <p>Item: <span id="itemResult"></span></p>
+        </div>
+        <div>
+            <h2>Buy Item</h2>
+            <input type="text" id="buyItemName" placeholder="Item Name">
+            <button onclick="buyItem()">Buy Item</button>
+        </div>
+    </div>
+
+    <script>
+        // ... (your existing script code) ...
+        const contractAddress = '0x1E605FC620D81Ce89cCa4Ce46674D7c2e26CA505'; // Replace with the actual contract address
+        const abi =[
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "initBalance",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "withdrawAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "InsufficientBalance",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Deposit",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "itemName",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "itemPrice",
+          "type": "uint256"
+        }
+      ],
+      "name": "ItemBought",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Withdraw",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "balance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_itemName",
+          "type": "string"
+        }
+      ],
+      "name": "buyItem",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "deposit",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "name": "inventory",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address payable",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_itemName",
+          "type": "string"
+        }
+      ],
+      "name": "viewItem",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_withdrawAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ];
+  const web3 = new Web3(window.ethereum);
+
+        async function init() {
+            const contract = new web3.eth.Contract(abi, contractAddress);
+            const balance = await contract.methods.getBalance().call();
+            const owner = await contract.methods.owner().call();
+            const accounts = await web3.eth.getAccounts();
+            const userAddress = accounts[0];
+
+            document.getElementById('contractAddress').textContent = contractAddress;
+            document.getElementById('contractBalance').textContent = balance;
+            document.getElementById('userAddress').textContent = userAddress;
+
+            // Load transaction history
+            const transactionList = await getTransactionHistory(contract);
+            displayTransactionHistory(transactionList);
+        }
+
+        
+        
+
+
+        async function viewItem() {
+    console.log("View Item function called"); // Check if the function is being called
+    const contract = new web3.eth.Contract(abi, contractAddress);
+    const itemName = document.getElementById('itemName').value;
+    console.log("Item Name:", itemName); // Check if the item name is correctly fetched
+    const item = await contract.methods.viewItem(itemName).call();
+    console.log("Item Data:", item); // Check the data returned from the contract
+    document.getElementById('itemResult').textContent = `${item[0]} - Price: ${item[1]} eth`;
+}
+
+
+        async function buyItem() {
+            const contract = new web3.eth.Contract(abi, contractAddress);
+            const buyItemName = document.getElementById('buyItemName').value;
+            const accounts = await web3.eth.getAccounts();
+            const owner = accounts[0];
+            await contract.methods.buyItem(buyItemName).send({ from: owner });
+            alert("Item bought successfully");
+            location.reload();
+        }
+
+        // ... (your existing script code) ...
+        async function deposit() {
+            const contract = new web3.eth.Contract(abi, contractAddress);
+            const depositAmount = document.getElementById('depositAmount').value;
+            const accounts = await web3.eth.getAccounts();
+            const owner = accounts[0];
+            await contract.methods.deposit(depositAmount).send({ from: owner, value: depositAmount });
+			alert("deposite succesfull");
+            location.reload();
+        }
+
+        async function withdraw() {
+            const contract = new web3.eth.Contract(abi, contractAddress);
+            const withdrawAmount = document.getElementById('withdrawAmount').value;
+            const accounts = await web3.eth.getAccounts();
+            const owner = accounts[0];
+            await contract.methods.withdraw(withdrawAmount).send({ from: owner });
+			alert("withdraw suceesfull");
+            location.reload();
+        }
+
+
+        window.ethereum.enable().then(init);
+    </script>
+</body>
+</html>
