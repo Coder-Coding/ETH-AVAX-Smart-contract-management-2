@@ -56,7 +56,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- ... (rest of your HTML content) ... -->
+     
         <h1>My Unique Bank Web</h1>
         <div>
             <h2>Contract Information</h2>
@@ -90,7 +90,7 @@
     </div>
 
     <script>
-        // ... (your existing script code) ...
+       
         const contractAddress = '0x1E605FC620D81Ce89cCa4Ce46674D7c2e26CA505'; // Replace with the actual contract address
         const abi =[
     {
@@ -335,7 +335,7 @@
             location.reload();
         }
 
-        // ... (your existing script code) ...
+        
         async function deposit() {
             const contract = new web3.eth.Contract(abi, contractAddress);
             const depositAmount = document.getElementById('depositAmount').value;
